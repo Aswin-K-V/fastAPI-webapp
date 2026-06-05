@@ -1,24 +1,31 @@
-from click import File
-from pydantic import BaseModel, ConfigDict, Field,EmailStr
 from datetime import datetime
+
+from click import File
+from fastapi.datastructures import Default
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    username:str=Field(min_length=1,max_length=50)
-    email:EmailStr=Field(max_length=120)
+    username: str = Field(min_length=1, max_length=50)
+    email: EmailStr = Field(max_length=120)
 
 
 class UserCreate(UserBase):
     pass
 
+
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id:int
+    id: int
     image_file: str | None
-    image_path:str
+    image_path: str
 
 
+class UserUpdate(BaseModel):
+    username: str | None = Field(default=None, min_length=1, max_length=100)
+    email: EmailStr | None = Field(default=None, max_length=100)
+    image_file: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 class PostBase(BaseModel):
@@ -27,13 +34,18 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    user_id:int #temporary
+    user_id: int  # temporary
+
+
+class PostUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    content: str | None = Field(default=None, max_length=1)
 
 
 class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_id:int
-    date_posted:datetime
-    author:UserResponse
+    user_id: int
+    date_posted: datetime
+    author: UserResponse
