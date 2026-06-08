@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from click import File
-from fastapi.datastructures import Default
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -28,8 +26,8 @@ class UserPrivate(UserPublic):
 
 
 class UserUpdate(BaseModel):
-    username: str | None = Field(default=None, min_length=1, max_length=100)
-    email: EmailStr | None = Field(default=None, max_length=100)
+    username: str | None = Field(default=None, min_length=1, max_length=50)
+    email: EmailStr | None = Field(default=None, max_length=120)
     image_file: str | None = Field(default=None, min_length=1, max_length=200)
 
 
@@ -44,12 +42,12 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    user_id: int  # temporary
+    pass
 
 
 class PostUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=100)
-    content: str | None = Field(default=None, max_length=1)
+    content: str | None = Field(default=None, min_length=1)
 
 
 class PostResponse(PostBase):
