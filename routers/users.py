@@ -190,7 +190,7 @@ async def reset_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="invalid or expired reset token",
         )
-    if reset_token.expires_at.replace(tzinfo=UTC) < datetime.now(UTC):
+    if reset_token.expires_at < datetime.now(UTC):
         await db.delete(reset_token)
         await db.commit()
         raise HTTPException(
