@@ -143,47 +143,47 @@ Optional:
 
 ```mermaid
 flowchart TD
-    Client[Client or browser] --> App[FastAPI app in main.py]
-    App --> UsersRouter[/api/users router]
-    App --> PostsRouter[/api/posts router]
-    App --> PageRoutes[Server-rendered page routes]
+    Client["Client or browser"] --> App["FastAPI app in main.py"]
+    App --> UsersRouter["/api/users router"]
+    App --> PostsRouter["/api/posts router"]
+    App --> PageRoutes["Server-rendered page routes"]
 
-    UsersRouter --> Auth[auth.py]
-    UsersRouter --> Schemas[schemas.py]
-    UsersRouter --> DBSession[get_db dependency]
-    UsersRouter --> Email[email_utils.py]
-    UsersRouter --> Images[image_utils.py]
+    UsersRouter --> Auth["auth.py"]
+    UsersRouter --> Schemas["schemas.py"]
+    UsersRouter --> DBSession["get_db dependency"]
+    UsersRouter --> Email["email_utils.py"]
+    UsersRouter --> Images["image_utils.py"]
 
-    PostsRouter --> CurrentUser[CurrentUser dependency]
+    PostsRouter --> CurrentUser["CurrentUser dependency"]
     PostsRouter --> Schemas
     PostsRouter --> DBSession
 
     CurrentUser --> Auth
     Auth --> DBSession
-    DBSession --> ORM[SQLAlchemy ORM models]
-    ORM --> Database[(Database)]
+    DBSession --> ORM["SQLAlchemy ORM models"]
+    ORM --> Database["Database"]
 
-    Email --> SMTP[(SMTP server)]
-    Images --> S3[(S3 or S3-compatible storage)]
+    Email --> SMTP["SMTP server"]
+    Images --> S3["S3 or S3-compatible storage"]
 ```
 
 ### Configuration and Persistence
 
 ```mermaid
 flowchart LR
-    EnvFile[.env] --> Settings[config.Settings]
-    Settings --> App[FastAPI app]
-    Settings --> Engine[Async SQLAlchemy engine]
-    Settings --> JWT[JWT signing]
-    Settings --> Mail[SMTP client]
-    Settings --> Storage[S3 client]
+    EnvFile[".env"] --> Settings["config.Settings"]
+    Settings --> App["FastAPI app"]
+    Settings --> Engine["Async SQLAlchemy engine"]
+    Settings --> JWT["JWT signing"]
+    Settings --> Mail["SMTP client"]
+    Settings --> Storage["S3 client"]
 
-    Engine --> Sessions[AsyncSessionLocal]
-    Sessions --> Routes[API route dependencies]
-    Routes --> Models[ORM models]
-    Models --> DB[(Database)]
+    Engine --> Sessions["AsyncSessionLocal"]
+    Sessions --> Routes["API route dependencies"]
+    Routes --> Models["ORM models"]
+    Models --> DB["Database"]
 
-    Alembic[Alembic env.py] --> Settings
+    Alembic["Alembic env.py"] --> Settings
     Alembic --> DB
 ```
 
