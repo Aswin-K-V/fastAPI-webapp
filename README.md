@@ -167,58 +167,6 @@ flowchart TD
     Images --> S3["S3 or S3-compatible storage"]
 ```
 
-### Configuration and Persistence
-
-```mermaid
-flowchart LR
-    EnvFile[".env"] --> Settings["config.Settings"]
-    Settings --> App["FastAPI app"]
-    Settings --> Engine["Async SQLAlchemy engine"]
-    Settings --> JWT["JWT signing"]
-    Settings --> Mail["SMTP client"]
-    Settings --> Storage["S3 client"]
-
-    Engine --> Sessions["AsyncSessionLocal"]
-    Sessions --> Routes["API route dependencies"]
-    Routes --> Models["ORM models"]
-    Models --> DB["Database"]
-
-    Alembic["Alembic env.py"] --> Settings
-    Alembic --> DB
-```
-
-### Entity Relationship Diagram
-
-```mermaid
-erDiagram
-    users ||--o{ posts : writes
-    users ||--o{ password_reset_tokens : owns
-
-    users {
-        int id PK
-        string username UK
-        string email UK
-        string password_hash
-        string image_file
-    }
-
-    posts {
-        int id PK
-        string title
-        text content
-        int user_id FK
-        datetime date_posted
-        int likes
-    }
-
-    password_reset_tokens {
-        int id PK
-        int user_id FK
-        string token_hash UK
-        datetime expires_at
-        datetime created_at
-    }
-```
 
 ## API Surface
 
@@ -262,37 +210,6 @@ Base path: `/api/posts`
 5. Protected endpoints use the `CurrentUser` dependency from `auth.py`.
 6. JWT verification checks signature, expiration, and subject before loading the user from the database.
 
-## Password Reset Flow
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant API as FastAPI users router
-    participant DB as Database
-    participant Mail as SMTP server
-
-    Client->>API: POST /api/users/forgot-password
-    API->>DB: Find user by email
-    API->>DB: Delete old reset tokens
-    API->>DB: Store SHA-256 hash of new token
-    API-->>Client: 202 accepted
-    API->>Mail: Send reset link as background task
-
-    Client->>API: POST /api/users/reset-password
-    API->>DB: Match hashed token
-    API->>DB: Update password hash
-    API->>DB: Delete reset tokens for user
-    API-->>Client: 200 OK
-```
-
-## Profile Image Flow
-
-1. Authenticated user uploads an image to `/api/users/{user_id}/picture`.
-2. The route enforces `MAX_UPLOAD_SIZE_BYTES`.
-3. Pillow normalizes EXIF orientation, crops/resizes to `300x300`, converts to JPEG, and generates a UUID filename.
-4. The processed image is uploaded to `profile_pics/{filename}` in the configured S3 bucket.
-5. The user's `image_file` column stores only the filename.
-6. `User.image_path` builds the public S3 URL when S3 is configured, otherwise it falls back to `/static/profile_pics/default.jpg`.
 
 ## Database Migrations
 
