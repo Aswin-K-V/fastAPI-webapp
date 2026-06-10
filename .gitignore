@@ -47,3 +47,6 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+.populate_db.py
+media/
