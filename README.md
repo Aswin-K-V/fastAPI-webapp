@@ -250,10 +250,4 @@ Roll back one migration:
 uv run alembic downgrade -1
 ```
 
-## Development Notes
 
-- Keep secrets in `.env`; `.env` and `.env.*` are ignored by git.
-- Commit `.env.example` when configuration changes.
-- API schemas live in `schemas.py`; keep response models from exposing internal fields such as `password_hash`.
-- The app uses async SQLAlchemy sessions through `Depends(get_db)`.
-- Protected routes should use `CurrentUser` and then enforce ownership where required.
