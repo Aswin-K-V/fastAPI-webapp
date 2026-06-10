@@ -139,34 +139,53 @@ Optional:
 
 ## Backend Architecture
 
-### Runtime Flow
+### High-Level System Diagram
 
 ```mermaid
 flowchart TD
-    Client["Client or browser"] --> App["FastAPI app in main.py"]
-    App --> UsersRouter["/api/users router"]
-    App --> PostsRouter["/api/posts router"]
-    App --> PageRoutes["Server-rendered page routes"]
+    Client["Browser or API client"]
+    FastAPI["FastAPI backend"]
+    Validation["Request validation and response schemas"]
+    Auth["Authentication layer<br/>OAuth2 form login, JWT bearer tokens, Argon2 password hashing"]
+    Domain["User, post, password reset, and profile image workflows"]
+    DBLayer["Async SQLAlchemy data access"]
+    Migrations["Alembic migrations"]
+    Database["PostgreSQL in production<br/>SQLite supported for local development"]
+    Email["Password reset email"]
+    SMTP["SMTP provider"]
+    Images["Profile image processing"]
+    S3["AWS S3 or S3-compatible object storage"]
+    Pages["Server-rendered HTML pages and static assets"]
 
-    UsersRouter --> Auth["auth.py"]
-    UsersRouter --> Schemas["schemas.py"]
-    UsersRouter --> DBSession["get_db dependency"]
-    UsersRouter --> Email["email_utils.py"]
-    UsersRouter --> Images["image_utils.py"]
+    Client --> FastAPI
+    FastAPI --> Validation
+    FastAPI --> Auth
+    FastAPI --> Domain
+    FastAPI --> Pages
 
-    PostsRouter --> CurrentUser["CurrentUser dependency"]
-    PostsRouter --> Schemas
-    PostsRouter --> DBSession
+    Auth --> DBLayer
+    Domain --> DBLayer
+    DBLayer --> Database
+    Migrations --> Database
 
-    CurrentUser --> Auth
-    Auth --> DBSession
-    DBSession --> ORM["SQLAlchemy ORM models"]
-    ORM --> Database["Database"]
+    Domain --> Email
+    Email --> SMTP
 
-    Email --> SMTP["SMTP server"]
-    Images --> S3["S3 or S3-compatible storage"]
+    Domain --> Images
+    Images --> S3
 ```
 
+### Request Flow
+
+1. A browser or API client sends a request to the FastAPI backend.
+2. FastAPI validates incoming data and routes the request to the matching backend workflow.
+3. Public actions, such as registration, login, post listing, and password reset requests, can run without a JWT.
+4. Login verifies the submitted password against the stored Argon2 password hash and returns a signed JWT access token.
+5. Protected actions require an `Authorization: Bearer <token>` header. The backend verifies the JWT signature and expiration, then loads the current user from the database.
+6. Application data is read and written through async SQLAlchemy. PostgreSQL is the production-style database target, while SQLite is available for local development.
+7. Alembic manages database schema changes so the database structure stays aligned with the application models.
+8. Password reset requests create a short-lived reset token and send the reset link through the configured SMTP provider.
+9. Profile image uploads are processed by the backend before being stored in AWS S3 or another S3-compatible object store when configured.
 
 ## API Surface
 
