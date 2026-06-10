@@ -1,6 +1,6 @@
 # FastAPI Blog Backend
 
-This project is a FastAPI backend for a small blog application. It exposes JSON APIs for users, authentication, password resets, profile images, and posts. The app also renders a few server-side HTML pages, but the core backend is the FastAPI API layer, async SQLAlchemy models, Alembic migrations, SMTP email integration, and optional S3 profile image storage.
+This project is a FastAPI backend for  blog application. It exposes JSON APIs for users, authentication, password resets, profile images, and posts. The app also renders a few server-side HTML pages, but the core backend is the FastAPI API layer, async SQLAlchemy models, Alembic migrations, SMTP email integration, and optional S3 profile image storage.
 
 ## Tech Stack
 
@@ -10,7 +10,7 @@ This project is a FastAPI backend for a small blog application. It exposes JSON 
 - Pydantic and pydantic-settings for request validation and environment config
 - PyJWT bearer token authentication
 - pwdlib with Argon2 password hashing
-- aiosmtplib for password reset email delivery
+- aiosmtplib for password reset email delivery through Mailtrap SMTP
 - Pillow for profile image processing
 - boto3 for optional S3 profile image storage
 - uv for dependency management
@@ -124,10 +124,10 @@ Optional:
 | `MAX_UPLOAD_SIZE_BYTES` | `5242880` | Maximum uploaded profile image size. |
 | `POSTS_PER_PAGE` | `5` | Page size for server-rendered post lists. |
 | `RESET_TOKEN_EXPIRE_MINUTES` | `60` | Password reset token lifetime. |
-| `MAIL_SERVER` | `localhost` | SMTP host. |
+| `MAIL_SERVER` | `localhost` | SMTP host. Use the Mailtrap SMTP host for development email testing. |
 | `MAIL_PORT` | `587` | SMTP port. |
-| `MAIL_USERNAME` | empty | SMTP username. Must be paired with `MAIL_PASSWORD`. |
-| `MAIL_PASSWORD` | empty | SMTP password. Must be paired with `MAIL_USERNAME`. |
+| `MAIL_USERNAME` | empty | Mailtrap SMTP username. Must be paired with `MAIL_PASSWORD`. |
+| `MAIL_PASSWORD` | empty | Mailtrap SMTP password. Must be paired with `MAIL_USERNAME`. |
 | `MAIL_FROM` | `noreply@example.com` | Sender address for password reset emails. |
 | `MAIL_USE_TLS` | `true` | Whether SMTP uses STARTTLS. |
 | `FRONTEND_URL` | `http://localhost:8000` | Base URL used when generating password reset links. |
@@ -152,7 +152,7 @@ flowchart TD
     Migrations["Alembic migrations"]
     Database["PostgreSQL in production<br/>SQLite supported for local development"]
     Email["Password reset email"]
-    SMTP["SMTP provider"]
+    SMTP["Mailtrap SMTP provider"]
     Images["Profile image processing"]
     S3["AWS S3 or S3-compatible object storage"]
     Pages["Server-rendered HTML pages and static assets"]
@@ -184,7 +184,7 @@ flowchart TD
 5. Protected actions require an `Authorization: Bearer <token>` header. The backend verifies the JWT signature and expiration, then loads the current user from the database.
 6. Application data is read and written through async SQLAlchemy. PostgreSQL is the production-style database target, while SQLite is available for local development.
 7. Alembic manages database schema changes so the database structure stays aligned with the application models.
-8. Password reset requests create a short-lived reset token and send the reset link through the configured SMTP provider.
+8. Password reset requests create a short-lived reset token and send the reset link through Mailtrap using SMTP.
 9. Profile image uploads are processed by the backend before being stored in AWS S3 or another S3-compatible object store when configured.
 
 ## API Surface
