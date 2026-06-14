@@ -15,6 +15,7 @@ ENV/
 !.env.example
 
 # FastAPI / local runtime files
+logs/
 *.log
 *.pid
 *.sqlite

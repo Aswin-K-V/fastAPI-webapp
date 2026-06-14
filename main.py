@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import Annotated
 
@@ -17,19 +18,30 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import models
 from config import settings
 from database import engine, get_db
+from logging_config import setup_logging
+from middleware import request_context_log_middleware
 from routers import posts, users
+
+# Configure logging before the app is created and before anything logs, so our
+# config wins over uvicorn's own logging setup.
+setup_logging(settings)
+logger = logging.getLogger("app")
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # Startup
-
+    logger.info("application startup complete")
     yield
     # Shutdown
     await engine.dispose()
+    logger.info("application shutdown complete")
 
 
 app = FastAPI(lifespan=lifespan)
+
+if settings.log_requests:
+    app.middleware("http")(request_context_log_middleware)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
